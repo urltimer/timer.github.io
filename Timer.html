@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  background-color: black;
+  color: orange;
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+#title{
+  font-family: serif;
+  font-size: 1.5cm;
+  text-align: center;
+  margin-top: 1cm;
+}
+#timer{
+  font-size: 5cm;
+  margin: auto;
+  text-align: center;
+}
+#manual{
+  font-size: .7cm;
+  margin: auto;
+  margin-top: 1cm;
+  margin-bottom: 1cm;
+  text-align: center;
+}
+
+
+</style>
+</head>
+<body onload="start_timer()">
+
+<!--add html-->
+
+<div id="title">
+  <b>Online Timer With URL Syntax</b>
+</div>
+
+<div id="manual">
+  Syntax: Homepage.html<b>#h99m99s99999</b><br>
+  Two numbers after <b>h</b> and <b>m</b> are read and all numbers
+  after <b>s</b> are read and used to start the timer.<br>
+  Press Enter and then F5 to start.
+  <br><br>
+
+  It is possible to not use all letters:<br>
+  Homepage.html<b>#m09</b> means 9 minutes.<br>
+  Homepage.html<b>#m19s01</b> means 19 minutes and 1 second.<br>
+  Homepage.html<b>#h01s01</b> means 1 hour and 1 second.<br>
+</div>
+
+<div id="timer">
+  00:00:00
+</div>
+
+<audio id="my_audio">
+  <source src="klockljud.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
+
+<script>
+
+console.log('hashpathname: ' + window.location.hash);
+
+var hash=window.location.hash;
+var s_index=hash.indexOf("s");
+var m_index=hash.indexOf("m");
+var h_index=hash.indexOf("h");
+
+var s=0;//sekunder
+var m=0;//minuter
+var h=0;//hour
+
+console.log(hash.substr(s_index+1) );//från s till slutet
+console.log(hash.substr(m_index+1,2) );//två tecken efter m läses
+console.log(hash.substr(h_index+1,2) );//två tecken efter h läses
+
+//test om det är siffror som skrivits in efter s,m,h
+if(isNaN(parseInt(hash.substr(s_index+1) ) )==false )
+  s=parseInt(hash.substr(s_index+1) );
+if(isNaN(parseInt(hash.substr(m_index+1,2) ) )==false )
+  m=parseInt(hash.substr(m_index+1,2) );
+if(isNaN(parseInt(hash.substr(h_index+1,2) ) )==false )
+  h=parseInt(hash.substr(h_index+1,2) );
+
+
+var timer_id; //för att stoppa timern
+var alarm_index=0;//antal ggr alarmet har ringt
+
+function start_timer(){
+  //ändras till 1000 om flik inaktiv, precis det jag har
+  timer_id = setInterval(timer, 1000);
+}
+
+function timer(){
+
+  //sek-sträng tas fram
+  if(s<10)
+    s_str = "0"+s;// sek_string
+  else
+    s_str=s;
+  //min-sträng tas fram
+  if(m<10)
+    m_str = "0"+m;// min_string
+  else
+    m_str=m;
+  //tim-sträng tas fram
+  if(h<10)
+    h_str = "0"+h;// hour_string
+  else
+    h_str=h;
+
+
+
+  document.getElementById('timer').innerHTML = h_str+":"+m_str+":"+s_str;
+  document.title = h_str+":"+m_str+":"+s_str;//fliktiteln
+  s--;
+
+  if(s<0){
+    s=59;
+    m--;
+    if(m<0){
+      m=59;
+      h--;
+      if(h<0){
+        clearInterval(timer_id);
+        console.log("alarm!");
+        //återanvänder timer_id
+        timer_id = setInterval(audio_player, 1000);
+
+
+      }
+    }
+  }
+
+}
+
+function audio_player(){
+  var aud = document.getElementById("my_audio");
+  aud.play();
+  alarm_index++;
+  if(alarm_index==10){
+    clearInterval(timer_id);
+    console.log("alarm slut");
+  }
+}
+
+</script>
+
+
+
+</body>
+</html>
